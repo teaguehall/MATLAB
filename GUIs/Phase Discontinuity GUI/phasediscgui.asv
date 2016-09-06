@@ -22,7 +22,7 @@ function varargout = phasediscgui(varargin)
 
 % Edit the above text to modify the response to help phasediscgui
 
-% Last Modified by GUIDE v2.5 05-Sep-2016 20:01:13
+% Last Modified by GUIDE v2.5 05-Sep-2016 19:04:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,15 +56,10 @@ function phasediscgui_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 % Add user gui state data that will be referenced by call backs
-handles.disc_state = struct('fs', [], ...
-                            'freq', [], ...
+handles.disc_state = struct('freg', [], ...
                             'tdur', [], ...
                             'segs1', [], ...
                             'segs2', []);
-                        
-% Initialize GUI elements and other data
-handles.textin_fs.String = 44100;
-handles.disc_state.fs = 44100;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -93,12 +88,13 @@ function textin_seg2_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of textin_seg2 as text
 %        str2double(get(hObject,'String')) returns contents of textin_seg2 as a double
 
+
 %% Collect and store user selected parameters 
 
 
 function textin_tdur_Callback(hObject, eventdata, handles)
     input = str2double(handles.textin_tdur.String);
-    val = 0;
+    val;
     
     if(isnan(input))
        val = handles.disc_state.tdur;
@@ -110,52 +106,12 @@ function textin_tdur_Callback(hObject, eventdata, handles)
         val = input;
     end
     
-    handles.textin_tdur.String = val;
-    handles.disc_state.tdur = val;
-    guidata(hObject, handles);
     
-function textin_freq_Callback(hObject, eventdata, handles)
-    input = str2double(handles.textin_freq.String);
-    fs = str2double(handles.textin_fs.String);
-    val = 0;
     
-    if(isnan(input))
-       val = handles.disc_state.freq;
-    elseif(input > (fs/2))
-        val = (fs/2); 
-    elseif(input < 0)
-        val = 0;
-    else
-        val = input;
-    end
-    
-    handles.textin_freq.String = val;
-    handles.disc_state.freq = val;
-    guidata(hObject, handles);
-
-function textin_fs_Callback(hObject, eventdata, handles)
-    input = str2double(handles.textin_fs.String);
-    val = 0;
-    
-    if(isnan(input))
-       val = handles.disc_state.fs;
-    elseif(input > 44100)
-        val = 44100; 
-    elseif(input < 1000)
-        val = 1000;
-    else
-        val = input;
-    end
-    
-    handles.textin_fs.String = val;
-    handles.disc_state.fs = val;
-    guidata(hObject, handles);
-    
-    % Update 
-    textin_freq_Callback(hObject, eventdata, handles);
     
     
 
+end
 
 
 
@@ -239,6 +195,17 @@ function popupmenu1_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function textin_freq_Callback(hObject, eventdata, handles)
+% hObject    handle to textin_freq (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of textin_freq as text
+%        str2double(get(hObject,'String')) returns contents of textin_freq as a double
+
 
 % --- Executes during object creation, after setting all properties.
 function textin_freq_CreateFcn(hObject, eventdata, handles)
