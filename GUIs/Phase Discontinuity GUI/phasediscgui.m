@@ -22,7 +22,7 @@ function varargout = phasediscgui(varargin)
 
 % Edit the above text to modify the response to help phasediscgui
 
-% Last Modified by GUIDE v2.5 10-Sep-2016 08:42:48
+% Last Modified by GUIDE v2.5 10-Sep-2016 11:36:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,6 +71,7 @@ handles.signal2_freq = [];
 handles.signal2_freqmag = [];
 handles.signal2_freqphase = [];
 handles.freq_array = [];
+handles.timeIsDisplayed = 0;
 
 % Initialize GUI elements and other data
 handles.disc_state.fs = 44100;
@@ -219,7 +220,7 @@ fstep = 1/tdur;
 % genereate time domain signals
 handles.signal1_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs1, window_type.Rect);
 handles.signal2_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs2, window_type.Rect);
-handles.time_array = 0:tstep:tdur;
+handles.time_array = 0:tstep:tdur-tstep;
 
 % generate freq domain representations
 handles.signal1_freq = fft(handles.signal1_time);
@@ -235,15 +236,13 @@ handles.signal2_freqphase = angle(handles.signal2_freq);
 handles.freq_array = 0:fstep:(handles.disc_state.fs)/2-fstep;
 
 % plot freq domain representations as default display
-axes(handles.mainaxes);
-title('Frequency Domain');
-plot(handles.freq_array, handles.signal1_freqmag);
-hold
-plot(handles.freq_array, handles.signal2_freqmag);
+if(handles.timeIsDisplayed == 0)
+    plotFreq(handles);
+else
+    plotTime(handles);
+end
 
-
-
-
+guidata(hObject, handles);
 
 % --- Executes on selection change in popupmenu2.
 function popupmenu2_Callback(hObject, eventdata, handles)
@@ -325,22 +324,102 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in pushbutton2.
-function pushbutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% --- Executes on button press in pb_playsignal1.
+function pb_playsignal1_Callback(hObject, eventdata, handles)
+    sound(handles.signal1_time, handles.disc_state.fs);
 
 
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% --- Executes on button press in pb_playsignal2.
+function pb_playsignal2_Callback(hObject, eventdata, handles)
+    sound(handles.signal2_time, handles.disc_state.fs);
 
 
 % --- Executes on button press in pb_freq_time_toggle.
 function pb_freq_time_toggle_Callback(hObject, eventdata, handles)
-% hObject    handle to pb_freq_time_toggle (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+
+if(handles.timeIsDisplayed == 0)
+    plotTime(handles);
+    handles.timeIsDisplayed = 1;
+else
+    plotFreq(handles);
+    handles.timeIsDisplayed = 0;
+end
+
+guidata(hObject, handles);
+
+
+% --- Executes on button press in rb_displayphase.
+function rb_displayphase_Callback(hObject, eventdata, handles)
+    if(handles.timeIsDisplayed == 0)
+        plotFreq(handles);
+    end
+
+% Plot Functions
+function plotFreq(handles)
+    if(handles.rb_displayphase.Value)
+        plotFreqMagPhase(handles);
+    else
+        plotFreqMag(handles);
+    end
+
+function plotFreqMagPhase(handles)   
+    cla(handles.mainaxes, 'reset');
+    axes(handles.mainaxes);
+
+    hold on
+    yyaxis left
+    plot(handles.freq_array, handles.signal1_freqmag, 'red');
+    plot(handles.freq_array, handles.signal2_freqmag, 'blue');
+    yyaxis right
+    plot(handles.freq_array, handles.signal1_freqphase, '--red');
+    plot(handles.freq_array, handles.signal2_freqphase, '--blue');
+
+    title('Frequency Domain');
+    yyaxis left
+    ylabel('Magnitude');
+    yyaxis right
+    ylabel('Phase (rads)');
+    xlabel('Analog Frequency (Hz)')
+
+    legend('Signal 1 Magnitude', 'Signal 2 Magnitude','Signal 1 Phase', 'Signal 2 Phase')
+    hold off
+    
+function plotFreqMag(handles)
+
+    cla(handles.mainaxes, 'reset');
+    axes(handles.mainaxes);
+
+    hold on
+    yyaxis left
+    plot(handles.freq_array, handles.signal1_freqmag, 'red');
+    plot(handles.freq_array, handles.signal2_freqmag, 'blue');
+
+
+    title('Frequency Domain');
+    yyaxis left
+    ylabel('Magnitude');
+
+    xlabel('Analog Frequency (Hz)')
+
+    legend('Signal 1 Magnitude', 'Signal 2 Magnitude')
+    hold off 
+
+function plotTime(handles)
+
+    cla(handles.mainaxes, 'reset');
+    axes(handles.mainaxes);
+    
+    hold on
+    disp(length(handles.time_array))
+    disp(length(handles.signal1_time))
+    
+    
+    plot(handles.time_array, handles.signal1_time, 'red');
+    plot(handles.time_array, handles.signal2_time, 'blue');
+    title('Time Domain');
+    ylabel('Magnitude');
+    xlabel('Time (sec)')
+    legend('Signal 1', 'Signal 2')
+    hold off 
+    
+    
