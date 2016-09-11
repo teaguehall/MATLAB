@@ -2,11 +2,10 @@
 % combination segments
 function signal = buildSignal(fs, tdur, freq, segs, window)
 
-signal_size = fs*tdur;
-segment_size = signal_size/segs;
+signal_size = round(fs*tdur);
+segment_size = floor(signal_size/segs);
 
 signal = zeros(1, signal_size);
-segment_size = round(segment_size);
 segment = zeros(1, segment_size);
 
 for i = 0:(segs-1)

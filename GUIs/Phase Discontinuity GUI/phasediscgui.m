@@ -233,7 +233,7 @@ function pb_calc_Callback(hObject, eventdata, handles)
     disp(handles.windowtype2)
     handles.signal1_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs1, handles.windowtype1);
     handles.signal2_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs2, handles.windowtype2);
-    handles.time_array = 0:tstep:tdur-tstep;
+    handles.time_array = linspace(0, tdur, length(handles.signal1_time));
 
     % generate freq domain representations
     handles.signal1_freq = fft(handles.signal1_time);
