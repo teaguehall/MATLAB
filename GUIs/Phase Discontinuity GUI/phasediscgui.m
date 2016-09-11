@@ -72,6 +72,8 @@ handles.signal2_freqmag = [];
 handles.signal2_freqphase = [];
 handles.freq_array = [];
 handles.timeIsDisplayed = 0;
+handles.windowtype1 = 'Rectangle';
+handles.windowtype2 = 'Rectangle';
 
 % Initialize GUI elements and other data
 handles.disc_state.fs = 44100;
@@ -86,8 +88,8 @@ handles.textin_fs.String = handles.disc_state.fs
 handles.textin_segs1.String = handles.disc_state.segs1;
 handles.textin_segs2.String = handles.disc_state.segs2;
 
-
-
+% Initialize Plot Titles/Labels
+plotInit(handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -107,8 +109,11 @@ function varargout = phasediscgui_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
-
-%% Collect and store user selected parameters 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PARAMETER SELECT CALLBACKS - Functions that select/configure parameters
+% before the phase discontinuity calculations are called. These functions
+% are called by interaction with the GUI.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function textin_tdur_Callback(hObject, eventdata, handles)
     input = str2double(handles.textin_tdur.String);
     val = 0;
@@ -210,30 +215,40 @@ function textin_segs2_Callback(hObject, eventdata, handles)
     handles.disc_state.segs2 = val;
     guidata(hObject, handles);
 
-% --- Executes on button press in pb_calc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONTROL CALLBACKS - Functions used for controlling the phase disctonuity
+% calculations and displays. These functions are called interaction with
+% the GUI.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+    
 function pb_calc_Callback(hObject, eventdata, handles)
-tdur = handles.disc_state.tdur;
-fs = handles.disc_state.fs;
-tstep = 1/fs;
-fstep = 1/tdur;
+    tdur = handles.disc_state.tdur;
+    fs = handles.disc_state.fs;
+    tstep = 1/fs;
+    fstep = 1/tdur;
 
-% genereate time domain signals
-handles.signal1_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs1, window_type.Rect);
-handles.signal2_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs2, window_type.Rect);
-handles.time_array = 0:tstep:tdur-tstep;
+    % genereate time domain signals
+    disp('Calculations')
+    disp(handles.windowtype1)
+    disp(handles.windowtype2)
+    handles.signal1_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs1, handles.windowtype1);
+    handles.signal2_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs2, handles.windowtype2);
+    handles.time_array = 0:tstep:tdur-tstep;
 
-% generate freq domain representations
-handles.signal1_freq = fft(handles.signal1_time);
-handles.signal1_freq = handles.signal1_freq(1:(fs*tdur/2));
-handles.signal1_freqmag = abs(handles.signal1_freq);
-handles.signal1_freqphase = angle(handles.signal1_freq);
+    % generate freq domain representations
+    handles.signal1_freq = fft(handles.signal1_time);
+    handles.signal1_freq = handles.signal1_freq(1:(fs*tdur/2));
+    handles.signal1_freqmag = abs(handles.signal1_freq);
+    handles.signal1_freqphase = angle(handles.signal1_freq);
 
-handles.signal2_freq = fft(handles.signal2_time);
-handles.signal2_freq = handles.signal2_freq(1:(fs*tdur/2));
-handles.signal2_freqmag = abs(handles.signal2_freq);
-handles.signal2_freqphase = angle(handles.signal2_freq);
+    handles.signal2_freq = fft(handles.signal2_time);
+    handles.signal2_freq = handles.signal2_freq(1:(fs*tdur/2));
+    handles.signal2_freqmag = abs(handles.signal2_freq);
+    handles.signal2_freqphase = angle(handles.signal2_freq);
 
-handles.freq_array = 0:fstep:(handles.disc_state.fs)/2-fstep;
+    handles.freq_array = 0:fstep:(handles.disc_state.fs)/2-fstep;
+    
+    guidata(hObject, handles);
 
 % plot freq domain representations as default display
 if(handles.timeIsDisplayed == 0)
@@ -244,124 +259,127 @@ end
 
 guidata(hObject, handles);
 
-% --- Executes on selection change in popupmenu2.
-function popupmenu2_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu2 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu2
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-
-
-
-
-
-
-% --- Executes on selection change in popupmenu1.
-function popupmenu1_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu1
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes during object creation, after setting all properties.
-function textin_freq_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to textin_freq (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-
-
-% --- Executes during object creation, after setting all properties.
-function textin_tdur_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to textin_tdur (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-% --- Executes on button press in pb_playsignal1.
 function pb_playsignal1_Callback(hObject, eventdata, handles)
     sound(handles.signal1_time, handles.disc_state.fs);
 
-
-% --- Executes on button press in pb_playsignal2.
 function pb_playsignal2_Callback(hObject, eventdata, handles)
     sound(handles.signal2_time, handles.disc_state.fs);
 
-
-% --- Executes on button press in pb_freq_time_toggle.
 function pb_freq_time_toggle_Callback(hObject, eventdata, handles)
-
-if(handles.timeIsDisplayed == 0)
-    plotTime(handles);
-    handles.timeIsDisplayed = 1;
-else
-    plotFreq(handles);
-    handles.timeIsDisplayed = 0;
-end
+    if(handles.timeIsDisplayed == 0)
+        plotTime(handles);
+        handles.timeIsDisplayed = 1;
+    else
+        plotFreq(handles);
+        handles.timeIsDisplayed = 0;
+    end
 
 guidata(hObject, handles);
 
-
-% --- Executes on button press in rb_displayphase.
 function rb_displayphase_Callback(hObject, eventdata, handles)
     if(handles.timeIsDisplayed == 0)
         plotFreq(handles);
     end
+    
+function popupmenu1_Callback(hObject, eventdata, handles)
+   value = handles.popupmenu1.Value;
+   disp(value)
+   type = updateWindow(value);
+   disp(type)
+   handles.windowtype1 = type;
+   
+   guidata(hObject, handles);
+   
+function popupmenu2_Callback(hObject, eventdata, handles)
+   value = handles.popupmenu2.Value;
+   disp(value)
+   type = updateWindow(value);
+   disp(type)
+   handles.windowtype2 = type;
+   
+   guidata(hObject, handles);
+   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PRIVATE FUNCTIONS - CALLED ONLY BY THIS SCRIPT FILE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+function type = updateWindow(value)
+   switch value
+       case 1
+           type = window_type.Rectangle;
+       case 2
+           type = window_type.Triangle;
+       case 3
+           type = window_type.Parzen;
+       case 4
+           type = window_type.Welch;
+       case 6
+           type = window_type.Hanning;
+       case 7
+           type = window_type.Hamming;           
+       case 8
+           type = window_type.Blackmkan;       
+       case 9
+           type = window_type.Nutall;      
+       case 10
+           type = window_type.BlackmanNutall       
+       case 11
+           type = window_type.BlackmanHarris;      
+       case 12
+           type = window_type.FlatTop;
+       case 13
+           type = window_type.RiceVincent;           
+       case 14
+           type = window_type.Cosine;           
+       case 15
+           type = window_type.Gaussian;           
+       case 16
+           type = window_type.ConfinedGaussian;                     
+       case 17
+           type = window_type.ApproxConfinedGaussian;           
+       case 18
+           type = window_type.GeneralNormal; 
+       case 19
+           type = window_type.Tukey;   
+       case 20
+           type = window_type.PlankTaper;    
+       case 21
+           type = window_type.Slepian;    
+       case 22
+           type = window_type.Kaiser;    
+       case 23
+           type = window_type.DolphChebyshev;    
+       case 24
+           type = window_type.UltraSpherical;    
+       case 25
+           type = window_type.Poisson;    
+       case 26
+           type = window_type.BartlettHann;    
+       case 27
+           type = window_type.PlankBessel;    
+       case 28
+           type = window_type.HannPoisson;    
+       case 29
+           type = window_type.Lanczos;    
+       otherwise
+           type = window_type.Rectangle;
+   end
 
 % Plot Functions
+function plotInit(handles)
+    cla(handles.mainaxes, 'reset');
+    axes(handles.mainaxes);
+    title('Time Domain');
+    ylabel('Magnitude');
+    xlabel('Time (sec)')
+
 function plotFreq(handles)
     if(handles.rb_displayphase.Value)
         plotFreqMagPhase(handles);
     else
         plotFreqMag(handles);
     end
-
+    
 function plotFreqMagPhase(handles)   
     cla(handles.mainaxes, 'reset');
     axes(handles.mainaxes);
@@ -421,5 +439,7 @@ function plotTime(handles)
     xlabel('Time (sec)')
     legend('Signal 1', 'Signal 2')
     hold off 
+    
+    
     
     
