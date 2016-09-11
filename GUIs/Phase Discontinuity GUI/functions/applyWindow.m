@@ -10,10 +10,18 @@ function segment = applyWindow(segment, type)
         case window_type.Rectangle
                          
         case window_type.Triangle
+            halflength = floor(length(window)/2);
+            window(1:halflength) = linspace(0, 1, halflength);
+            window(halflength+1:length(window)) = linspace(1, 0, length(window)-halflength);
+            segment = segment.*window;
                          
         case window_type.Parzen
-                         
+            window = transpose(parzenwin(size));
+            segment = segment.*window; 
+            
         case window_type.Welch
+            window = 1 - ((n-((size-1)/2))/((size-1)/2)).^2;
+            segment = segment.*window;
                          
         case window_type.Hanning
                          

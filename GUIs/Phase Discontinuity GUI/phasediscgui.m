@@ -84,7 +84,7 @@ handles.disc_state.segs2 = 1;
 
 handles.textin_tdur.String = handles.disc_state.tdur;
 handles.textin_freq.String = handles.disc_state.freq;
-handles.textin_fs.String = handles.disc_state.fs
+handles.textin_fs.String = handles.disc_state.fs;
 handles.textin_segs1.String = handles.disc_state.segs1;
 handles.textin_segs2.String = handles.disc_state.segs2;
 
@@ -283,18 +283,14 @@ function rb_displayphase_Callback(hObject, eventdata, handles)
     
 function popupmenu1_Callback(hObject, eventdata, handles)
    value = handles.popupmenu1.Value;
-   disp(value)
    type = updateWindow(value);
-   disp(type)
    handles.windowtype1 = type;
    
    guidata(hObject, handles);
    
 function popupmenu2_Callback(hObject, eventdata, handles)
    value = handles.popupmenu2.Value;
-   disp(value)
    type = updateWindow(value);
-   disp(type)
    handles.windowtype2 = type;
    
    guidata(hObject, handles);
@@ -427,11 +423,13 @@ function plotTime(handles)
     cla(handles.mainaxes, 'reset');
     axes(handles.mainaxes);
     
-    hold on
+    disp('PLOT SIZE DEBUG')
     disp(length(handles.time_array))
     disp(length(handles.signal1_time))
     
+     
     
+    hold on
     plot(handles.time_array, handles.signal1_time, 'red');
     plot(handles.time_array, handles.signal2_time, 'blue');
     title('Time Domain');
