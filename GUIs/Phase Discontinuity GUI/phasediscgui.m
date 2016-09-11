@@ -22,7 +22,7 @@ function varargout = phasediscgui(varargin)
 
 % Edit the above text to modify the response to help phasediscgui
 
-% Last Modified by GUIDE v2.5 10-Sep-2016 11:36:12
+% Last Modified by GUIDE v2.5 11-Sep-2016 12:24:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -281,6 +281,20 @@ function rb_displayphase_Callback(hObject, eventdata, handles)
         plotFreq(handles);
     end
     
+function rb_displaysignal1_Callback(hObject, eventdata, handles)
+    if(handles.timeIsDisplayed)
+       plotTime(handles);
+    else
+       plotFreq(handles);
+    end
+
+function rb_displaysignal2_Callback(hObject, eventdata, handles)
+    if(handles.timeIsDisplayed)
+       plotTime(handles); 
+    else
+       plotFreq(handles);
+    end
+    
 function popupmenu1_Callback(hObject, eventdata, handles)
    value = handles.popupmenu1.Value;
    type = updateWindow(value);
@@ -318,7 +332,7 @@ function type = updateWindow(value)
        case 9
            type = window_type.Nutall;      
        case 10
-           type = window_type.BlackmanNutall       
+           type = window_type.BlackmanNutall;      
        case 11
            type = window_type.BlackmanHarris;      
        case 12
@@ -368,26 +382,30 @@ function plotInit(handles)
     title('Time Domain');
     ylabel('Magnitude');
     xlabel('Time (sec)')
-
-function plotFreq(handles)
-    if(handles.rb_displayphase.Value)
-        plotFreqMagPhase(handles);
-    else
-        plotFreqMag(handles);
-    end
     
-function plotFreqMagPhase(handles)   
+function plotFreq(handles)
     cla(handles.mainaxes, 'reset');
     axes(handles.mainaxes);
-
     hold on
-    yyaxis left
-    plot(handles.freq_array, handles.signal1_freqmag, 'red');
-    plot(handles.freq_array, handles.signal2_freqmag, 'blue');
-    yyaxis right
-    plot(handles.freq_array, handles.signal1_freqphase, '--red');
-    plot(handles.freq_array, handles.signal2_freqphase, '--blue');
-
+    
+    if(handles.rb_displaysignal1.Value)
+        yyaxis left
+        plot(handles.freq_array, handles.signal1_freqmag, 'red');
+        if(handles.rb_displayphase.Value)
+            yyaxis right
+            plot(handles.freq_array, handles.signal1_freqphase, '--red');
+        end 
+    end
+    
+    if(handles.rb_displaysignal2.Value)
+        yyaxis left
+        plot(handles.freq_array, handles.signal2_freqmag, 'blue');
+        if(handles.rb_displayphase.Value)
+            yyaxis right
+            plot(handles.freq_array, handles.signal2_freqphase, '--blue');
+        end       
+    end
+  
     title('Frequency Domain');
     yyaxis left
     ylabel('Magnitude');
@@ -395,49 +413,46 @@ function plotFreqMagPhase(handles)
     ylabel('Phase (rads)');
     xlabel('Analog Frequency (Hz)')
 
-    legend('Signal 1 Magnitude', 'Signal 2 Magnitude','Signal 1 Phase', 'Signal 2 Phase')
-    hold off
+    % Legend logic - the legend is dependent on what the user has selected
+    % to display..
+    if(handles.rb_displayphase.Value)
+       if(handles.rb_displaysignal1.Value && handles.rb_displaysignal2.Value)
+           legend('Signal 1 Magnitude', 'Signal 1 Phase','Signal 2 Magnitude', 'Signal 2 Phase')     
+       elseif(handles.rb_displaysignal1.Value && ~handles.rb_displaysignal2.Value)
+           legend('Signal 1 Magnitude', 'Signal 1 Phase')  
+       elseif(~handles.rb_displaysignal1.Value && handles.rb_displaysignal2.Value)
+           legend('Signal 2 Magnitude', 'Signal 2 Phase')    
+       end
+    else
+        if(handles.rb_displaysignal1.Value && handles.rb_displaysignal2.Value)
+           legend('Signal 1 Magnitude', 'Signal 2 Magnitude')     
+       elseif(handles.rb_displaysignal1.Value && ~handles.rb_displaysignal2.Value)
+           legend('Signal 1 Magnitude')  
+       elseif(~handles.rb_displaysignal1.Value && handles.rb_displaysignal2.Value)
+           legend('Signal 2 Magnitude')    
+       end       
+    end
     
-function plotFreqMag(handles)
-
-    cla(handles.mainaxes, 'reset');
-    axes(handles.mainaxes);
-
-    hold on
-    yyaxis left
-    plot(handles.freq_array, handles.signal1_freqmag, 'red');
-    plot(handles.freq_array, handles.signal2_freqmag, 'blue');
-
-
-    title('Frequency Domain');
-    yyaxis left
-    ylabel('Magnitude');
-
-    xlabel('Analog Frequency (Hz)')
-
-    legend('Signal 1 Magnitude', 'Signal 2 Magnitude')
-    hold off 
+    hold off
 
 function plotTime(handles)
 
     cla(handles.mainaxes, 'reset');
     axes(handles.mainaxes);
     
-    disp('PLOT SIZE DEBUG')
-    disp(length(handles.time_array))
-    disp(length(handles.signal1_time))
-    
-     
-    
     hold on
-    plot(handles.time_array, handles.signal1_time, 'red');
-    plot(handles.time_array, handles.signal2_time, 'blue');
+    
+    if(handles.rb_displaysignal1.Value)
+        plot(handles.time_array, handles.signal1_time, 'red');    
+    end
+    
+    if(handles.rb_displaysignal2.Value)
+        plot(handles.time_array, handles.signal2_time, 'blue');    
+    end
+    
     title('Time Domain');
     ylabel('Magnitude');
     xlabel('Time (sec)')
     legend('Signal 1', 'Signal 2')
     hold off 
-    
-    
-    
     
