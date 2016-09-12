@@ -24,36 +24,52 @@ function segment = applyWindow(segment, type)
             segment = segment.*window;
                          
         case window_type.Hanning
-                         
+            window = 0.5*(1-cos(2*pi*n/(size-1)));
+            segment = segment.*window;
+            
         case window_type.Hamming
-                         
+            window = 0.54 - 0.46*cos(2*pi*n/(size-1));     
+            segment = segment.*window;
+            
         case window_type.Blackman
-                         
-        case window_type.Nutall
-                         
+            window = 0.16 - 0.42*cos(2*pi*n/(size-1)) + 0.08*cos(4*pi*n/(size-1));
+            segment = segment.*window;
+            
+        case window_type.Nuttall
+            window = 0.355768 - 0.487396*cos(2*pi*n/(size-1)) + 0.144232*cos(4*pi*n/(size-1)) - 0.012604*cos(6*pi*n/(size-1));
+            segment = segment.*window;               
+              
         case window_type.BlackmanNutall
-                         
+            window = 0.3635819 - 0.4891775*cos(2*pi*n/(size-1)) + 0.1365995*cos(4*pi*n/(size-1)) - 0.0106411*cos(6*pi*n/(size-1));
+            segment = segment.*window; 
+            
         case window_type.BlackmanHarris
-                         
+            window = 0.35875 - 0.48829*cos(2*pi*n/(size-1)) + 0.14128*cos(4*pi*n/(size-1)) - 0.01168*cos(6*pi*n/(size-1));
+            segment = segment.*window; 
+            
         case window_type.FlatTop
-                         
-        case window_type.RiceVincent           
-                         
+            window = 1 - 1.93*cos(2*pi*n/(size-1)) + 1.29*cos(4*pi*n/(size-1)) - 0.388*cos(6*pi*n/(size-1)) + 0.028*cos(8*pi*n/(size-1));
+            segment = segment.*window; 
+                      
         case window_type.Cosine
             window = sin(pi*n/(size-1));
             segment = segment.*window;
                          
         case window_type.Gaussian
-                         
-        case window_type.ConfinedGaussian
-                         
-        case window_type.ApproxConfinedGuassian
-                         
+            rho = 0.5;
+            window = exp(-0.5*((n-(size-1)/2)/(rho*(size-1)/2)).^2);
+            segment = segment.*window;
+            
         case window_type.GeneralNormal
-                         
+            p = 2;
+            rho = 0.25;
+            window = exp(-((n-(size-1)/2)/(rho*(size-1)/2))^.p);
+            
         case window_type.Tukey
+            disp('Tukey window has not yet been implemented')
                          
         case window_type.PlankTaper
+            disp('Plnk Taper window has not yet been implemented')
                          
         case window_type.Slepian
                          
