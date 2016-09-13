@@ -228,9 +228,6 @@ function pb_calc_Callback(hObject, eventdata, handles)
     fstep = 1/tdur;
 
     % genereate time domain signals
-    disp('Calculations')
-    disp(handles.windowtype1)
-    disp(handles.windowtype2)
     handles.signal1_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs1, handles.windowtype1);
     handles.signal2_time = buildSignal(handles.disc_state.fs, handles.disc_state.tdur, handles.disc_state.freq, handles.disc_state.segs2, handles.windowtype2);
     handles.time_array = linspace(0, tdur, length(handles.signal1_time));
@@ -313,6 +310,8 @@ function popupmenu2_Callback(hObject, eventdata, handles)
 % PRIVATE FUNCTIONS - CALLED ONLY BY THIS SCRIPT FILE
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
+% TODO - Find an alternative method, this is very 'shift by one' error
+% prone
 function type = updateWindow(value)
    switch value
        case 1
@@ -323,53 +322,47 @@ function type = updateWindow(value)
            type = window_type.Parzen;
        case 4
            type = window_type.Welch;
-       case 6
+       case 5
            type = window_type.Hanning;
-       case 7
+       case 6
            type = window_type.Hamming;           
+       case 7
+           type = window_type.Blackman;       
        case 8
-           type = window_type.Blackmkan;       
+           type = window_type.Nuttall;      
        case 9
-           type = window_type.Nutall;      
+           type = window_type.BlackmanNuttall;      
        case 10
-           type = window_type.BlackmanNutall;      
-       case 11
            type = window_type.BlackmanHarris;      
+       case 11
+           type = window_type.FlatTop;         
        case 12
-           type = window_type.FlatTop;
-       case 13
-           type = window_type.RiceVincent;           
-       case 14
            type = window_type.Cosine;           
-       case 15
-           type = window_type.Gaussian;           
-       case 16
-           type = window_type.ConfinedGaussian;                     
-       case 17
-           type = window_type.ApproxConfinedGaussian;           
-       case 18
+       case 13
+           type = window_type.Gaussian;                     
+       case 14
            type = window_type.GeneralNormal; 
-       case 19
+       case 15
            type = window_type.Tukey;   
-       case 20
+       case 16
            type = window_type.PlankTaper;    
-       case 21
+       case 17
            type = window_type.Slepian;    
-       case 22
+       case 18
            type = window_type.Kaiser;    
-       case 23
+       case 19
            type = window_type.DolphChebyshev;    
-       case 24
+       case 20
            type = window_type.UltraSpherical;    
-       case 25
+       case 21
            type = window_type.Poisson;    
-       case 26
+       case 22
            type = window_type.BartlettHann;    
-       case 27
+       case 23
            type = window_type.PlankBessel;    
-       case 28
+       case 24
            type = window_type.HannPoisson;    
-       case 29
+       case 25
            type = window_type.Lanczos;    
        otherwise
            type = window_type.Rectangle;
@@ -453,6 +446,14 @@ function plotTime(handles)
     title('Time Domain');
     ylabel('Magnitude');
     xlabel('Time (sec)')
-    legend('Signal 1', 'Signal 2')
+    
+    if(handles.rb_displaysignal1.Value && handles.rb_displaysignal2.Value)
+        legend('Signal 1', 'Signal 2');    
+    elseif(~handles.rb_displaysignal1.Value && handles.rb_displaysignal2.Value)
+        legend('Signal 2');    
+    elseif(handles.rb_displaysignal1.Value && ~handles.rb_displaysignal2.Value)
+        legend('Signal 1'); 
+    end
+    
     hold off 
     

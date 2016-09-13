@@ -39,7 +39,7 @@ function segment = applyWindow(segment, type)
             window = 0.355768 - 0.487396*cos(2*pi*n/(size-1)) + 0.144232*cos(4*pi*n/(size-1)) - 0.012604*cos(6*pi*n/(size-1));
             segment = segment.*window;               
               
-        case window_type.BlackmanNutall
+        case window_type.BlackmanNuttall
             window = 0.3635819 - 0.4891775*cos(2*pi*n/(size-1)) + 0.1365995*cos(4*pi*n/(size-1)) - 0.0106411*cos(6*pi*n/(size-1));
             segment = segment.*window; 
             
@@ -61,10 +61,12 @@ function segment = applyWindow(segment, type)
             segment = segment.*window;
             
         case window_type.GeneralNormal
-            p = 2;
-            rho = 0.25;
-            window = exp(-((n-(size-1)/2)/(rho*(size-1)/2))^.p);
-            
+%             p = 2;
+%             rho = 0.25;
+%             window = exp(-((n-(size-1)/2)/(rho*(size-1)/2)).^p);
+              window = exp(-((n-(size-1)/2)/(0.25*(size-1)/2)).^2);
+              segment = segment.*window;
+              
         case window_type.Tukey
             disp('Tukey window has not yet been implemented')
                          
